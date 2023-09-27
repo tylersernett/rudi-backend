@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt')
 const router = require('express').Router()
 
 const { User, Pattern } = require('../models')
@@ -13,8 +14,23 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  const user = await User.create(req.body)
-  res.json(user)
+  const { username, password } = req.body
+
+  if (password.length < 3) {
+    const error = new Error('Password too short or missing')
+    error.name = 'PWError'
+    error.status = 400
+    return next(error)
+  }
+  const saltRounds = 10
+  const passwordHash = await bcrypt.hash(password, saltRounds)
+  
+  const user = await User.create({
+    username,
+    passwordHash,
+  })
+
+  res.status(201).json(user)
 })
 
 router.get('/:id', async (req, res) => {
