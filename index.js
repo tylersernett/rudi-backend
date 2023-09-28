@@ -18,6 +18,7 @@ const patternsRouter = require('./controllers/patterns')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
 const logoutRouter = require('./controllers/logout')
+const metronomeRouter = require('./controllers/metronomes')
 
 app.use(express.json())
 
@@ -25,6 +26,7 @@ app.use('/api/patterns', patternsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/logout', logoutRouter)
+app.use('/api/metronomes', metronomeRouter)
 
 //add error handling LAST
 app.use((err, req, res, next) => {
