@@ -1,12 +1,13 @@
 const bcrypt = require('bcrypt')
 const router = require('express').Router()
 
-const { User, Pattern } = require('../models')
+const { User, Metronome } = require('../models')
 
 router.get('/', async (req, res) => {
   const users = await User.findAll({
+    attributes: { exclude: ['passwordHash'] },
     include: {
-      model: Pattern,
+      model: Metronome,
       attributes: { exclude: ['userId'] }
     }
   })
@@ -24,13 +25,20 @@ router.post('/', async (req, res) => {
   }
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(password, saltRounds)
-  
+
   const user = await User.create({
     username,
     passwordHash,
   })
 
-  res.status(201).json(user)
+  const userWithoutPasswordHash = {
+    id: user.id,
+    username: user.username,
+    disabled: user.disabled,
+    // Add any other properties you want to include in the response
+  };
+
+  res.status(201).json(userWithoutPasswordHash)
 })
 
 router.get('/:id', async (req, res) => {
@@ -42,10 +50,11 @@ router.get('/:id', async (req, res) => {
   }
 
   const user = await User.findByPk(req.params.id, {
+    attributes: { exclude: ['passwordHash'] },
     include: [
       //patterns submitted by user:
       {
-        model: Pattern,
+        model: Metronome,
         attributes: { exclude: ['userId'] }
       },
       //patterns on user's reading list:
@@ -70,7 +79,10 @@ router.get('/:id', async (req, res) => {
 router.put('/:username', async (req, res) => {
   const username = req.params.username
   const newUsername = req.body.username
-  const user = await User.findOne({ where: { username } })
+  const user = await User.findOne({ 
+    where: { username },     
+    attributes: { exclude: ['passwordHash'] },
+})
   if (user) {
     await user.update({ username: newUsername })
     res.json(user)
