@@ -3,41 +3,27 @@ const { Op } = require('sequelize')
 const { tokenExtractor, userValidator } = require('../util/middleware')
 const { Metronome, User } = require('../models')
 
-router.get('/', async (req, res) => {
-  // const blogs = await sequelize.query("SELECT * FROM blogs", { type: QueryTypes.SELECT })
+router.get('/', tokenExtractor, userValidator, async (req, res) => {
+  const userId = req.decodedToken.id;
 
-  const where = {}
+  try {
+    const metronomes = await Metronome.findAll({
+      attributes: { exclude: ['userId'] },
+      include: {
+        model: User,
+        attributes: ['username'],
+      },
+      where: {
+        userId: userId,
+      },
+    });
 
-  // if (req.query.search) {
-  //   const searchValue = `%${req.query.search}%`
-
-  //   where[Op.or] = [
-  //     {
-  //       title: {
-  //         [Op.iLike]: searchValue, //iLike is case insensitive
-  //       },
-  //     },
-  //     {
-  //       author: {
-  //         [Op.iLike]: searchValue,
-  //       },
-  //     },
-  //   ]
-  // }
-
-  const metronomes = await Metronome.findAll({
-    attributes: { exclude: ['userId'] },
-    include: {
-      model: User,
-      attributes: ['username']
-    },
-    where,
-    // order: [['likes', 'DESC']],
-  })
-  // console.log(blogs.map(b=>b.toJSON())) //use .toJSON to get rid of extraneous db info
-  // console.log(JSON.stringify(blogs, null, 2))
-  res.json(metronomes)
-})
+    res.json(metronomes);
+  } catch (error) {
+    console.error('Error fetching metronomes:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 //MIDDLEWARE
 const metronomeFinder = async (req, res, next) => {
