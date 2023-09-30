@@ -57,14 +57,24 @@ router.delete('/:id', tokenExtractor, userValidator, metronomeFinder, async (req
   res.status(204).end()
 })
 
-// router.put('/:id', metronomeFinder, async (req, res) => {
-//   if (req.metronome) {
-//     req.metronome.likes = req.body.likes
-//     await req.metronome.save()
-//     res.json(req.metronome)
-//   } else {
-//     res.status(404).end()
-//   }
-// })
+router.put('/:id', tokenExtractor, userValidator, metronomeFinder, async (req, res) => {
+  const user = await User.findByPk(req.decodedToken.id);
+
+  if (req.metronome) {
+    if (req.metronome.userId === user.id) {
+      try {
+        const updatedMetronome = await req.metronome.update(req.body);
+        res.json(updatedMetronome);
+      } catch (error) {
+        console.error('Error updating metronome:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    } else {
+      return res.status(403).json({ error: 'Forbidden: only owner can update metronome' });
+    }
+  } else {
+    return res.status(404).json({ error: 'Cannot find metronome id' });
+  }
+});
 
 module.exports = router
