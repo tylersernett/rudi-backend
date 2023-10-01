@@ -3,11 +3,11 @@ const cors = require('cors');
 require('express-async-errors')
 const app = express()
 
-const { PORT } = require('./util/config')
+const { PORT, CORS_ORIGIN } = require('./util/config')
 const { connectToDatabase } = require('./util/db')
 
 const corsOptions = {
-  origin: 'http://localhost:5173', // Replace with the actual origin of your frontend
+  origin: CORS_ORIGIN, // Replace with the actual origin of your frontend
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true, // If you need to include credentials (cookies, HTTP authentication)
 };
