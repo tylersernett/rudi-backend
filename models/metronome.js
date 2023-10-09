@@ -22,7 +22,7 @@ Metronome.init({
     allowNull: false,
   },
   blinkToggle: {
-    type: DataTypes.BOOLEAN,
+    type: DataTypes.TEXT,
     allowNull: false,
   },
 }, {
