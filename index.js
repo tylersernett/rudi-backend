@@ -33,6 +33,10 @@ app.use((err, req, res, next) => {
   console.error(err) // Log the error for debugging purposes
   if (err.name.startsWith('Sequelize')) {
     return res.status(400).send({ error: err.errors[0].message });
+  } else if (err.name.startsWith('PWError') ) {
+    res.status(400).send({ error: err.message });
+  } else {
+    res.status(500).json({ error: 'Internal server error' })
   }
   //this is now handled by the sequelize error message above
   // if (err.name === 'SequelizeValidationError') {
@@ -42,7 +46,6 @@ app.use((err, req, res, next) => {
   // } else if (err.name === 'SequelizeUniqueConstraintError') {
   //   return res.status(400).send({ error: err.errors[0].message })
   // }
-  res.status(500).json({ error: 'Internal server error' })
   next(err)
 })
 
@@ -55,6 +58,7 @@ const start = async () => {
 
 start()
 
+module.exports = { app }
 // const main = async () => {
 //   try {
 //     await sequelize.authenticate()
