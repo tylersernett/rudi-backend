@@ -14,7 +14,7 @@ const { User, Metronome } = require('../models')
 //   res.json(users)
 // })
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   const { username, password } = req.body
 
   if (password.length < 3) {
