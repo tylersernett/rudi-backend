@@ -1,3 +1,4 @@
+const { User } = require('../models'); // Import your models
 
 const initialMetronomes = [
   {
@@ -22,3 +23,13 @@ const initialMetronomes = [
     blinkToggle: "all",
   },
 ]
+
+const usersInDb = async () => {
+  const users = await User.findAll(); // Assuming 'User' is your Sequelize model
+  return users.map(user => user.toJSON());
+}
+
+module.exports = {
+  initialMetronomes,
+  usersInDb
+}
